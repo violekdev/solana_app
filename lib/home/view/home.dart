@@ -41,49 +41,64 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
   Future<void> authorizeUser() async {
     /// step 1
     final localScenario = await LocalAssociationScenario.create();
+    try {
+      /// step 2
+      localScenario.startActivityForResult(null).ignore();
 
-    /// step 2
-    localScenario.startActivityForResult(null).ignore();
+      /// step 3
+      client = await localScenario.start();
 
-    /// step 3
-    client = await localScenario.start();
+      /// step 4
+      final result = await client.authorize(
+        identityUri: Uri.parse('https://solana.apmink.com'),
+        iconUri: Uri.parse('favicon.ico'),
+        identityName: 'Solana App by Apmink',
+        cluster: 'devnet',
+      );
 
-    /// step 4
-    final result = await client.authorize(
-      identityUri: Uri.parse('https://solana.apmink.com'),
-      iconUri: Uri.parse('favicon.ico'),
-      identityName: 'Solana App by Apmink',
-      cluster: 'devnet',
-    );
+      /// step 5
+      // await localScenario.close();
 
-    /// step 5
-    await localScenario.close();
-
-    setState(() {
-      _result = result;
-    });
+      setState(() {
+        _result = result;
+      });
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      await localScenario.close();
+    }
   }
 
   Future<void> deauthorizeUser() async {
     /// step 1
     // final localScenario = await LocalAssociationScenario.create();
+    try {
+      /// step 2
+      // localScenario.startActivityForResult(null).ignore();
 
-    /// step 2
-    // localScenario.startActivityForResult(null).ignore();
+      /// step 3
+      // client = await localScenario.start();
 
-    /// step 3
-    // final client = await localScenario.start();
+      /// step 4
+      // final result = await client.authorize(
+      //   identityUri: Uri.parse('https://solana.apmink.com'),
+      //   iconUri: Uri.parse('favicon.ico'),
+      //   identityName: 'Solana App by Apmink',
+      //   cluster: 'devnet',
+      // );
 
-    /// step 4
-    await client.deauthorize(authToken: _result!.authToken);
+      await client.deauthorize(authToken: _result!.authToken);
 
-    /// step 5
-    // await localScenario.close();
+      /// step 5
+      // await localScenario.close();
 
-    setState(() {
-      _result = null;
-      _accountBalance = 0;
-    });
+      setState(() {
+        _result = null;
+        _accountBalance = 0;
+      });
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   Future<void> requestAirDrop() async {
@@ -176,8 +191,8 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
           centerTitle: true,
           actions: [
             ElevatedButton(
-              onPressed: (_result != null) ? authorizeUser : deauthorizeUser,
-              child: Text((_result != null) ? 'Sign out' : 'Sign in'),
+              onPressed: (_result == null) ? authorizeUser : deauthorizeUser,
+              child: Text((_result == null) ? 'Sign in' : 'Sign out'),
             ),
           ],
         ),
