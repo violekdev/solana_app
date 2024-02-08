@@ -1,14 +1,12 @@
 // import 'dart:typed_data';
 
+// import 'package:flutter/material.dart';
 // import 'package:solana/anchor.dart';
 // import 'package:solana/dto.dart';
 // import 'package:solana/encoder.dart';
-// import 'package:solana/solana.dart' as solana;
+// import 'package:solana/solana.dart';
 // import 'package:solana_app/home/src/model.dart';
-// import 'package:solana_mobile_client/solana_mobile_client.dart' as smc;
-// import 'package:solana_web3/programs.dart' as programs;
-// // import 'package:solana_web3/programs.dart' as s_programs;
-// import 'package:solana_web3/solana_web3.dart' as sweb3;
+// import 'package:solana_mobile_client/solana_mobile_client.dart';
 
 // class Workspace {
 //   late dynamic wallet;
@@ -16,27 +14,27 @@
 //   // late dynamic provider;
 //   late dynamic program;
 //   // final clusterUrl = 'https://api.devnet.solana.com';
-//   final preflightCommitment = sweb3.Commitment.processed;
-//   final commitment = sweb3.Commitment.processed;
-//   final programId = solana.Ed25519HDPublicKey((solanaTweetJSON.metadata['address'] as String).codeUnits);
+//   final preflightCommitment = Commitment.processed;
+//   final commitment = Commitment.processed;
+//   final programId = Ed25519HDPublicKey((solanaTweetJSON.metadata['address'] as String).codeUnits);
 
-//   void workspace(solana.SolanaClient solanaClient, smc.AuthorizationResult result) {
-//     wallet = result.walletUriBase;
-//     connection = sweb3.Connection(sweb3.Cluster.devnet, commitment: commitment);
+//   void workspace(SolanaClient solanaClient, AuthorizationResult result) {
+//     // wallet = result.walletUriBase;
+//     // connection = Connection(Cluster.devnet, commitment: commitment);
   
 //     final anchorInstruction = AnchorInstruction.withDiscriminator(programId: programId, discriminator: ByteArray.u64(8), accounts: solanaTweetJSON.instructions[0]['accounts'] as List<AccountMeta>);
 
-//     program = programs.;
+//     program = solanaClient.;
     
 //     // final provider = AnchorProvider(connection, wallet, {preflightCommitment, commitment});
 //     // program = Program(idl, programID, provider.value);
     
-//     print(program);
-//     print(anchorInstruction);
-//     print(solanaTweetJSON.instructions[0]['accounts'] as List<AccountMeta>);
+//     debugPrint(program.toString());
+//     debugPrint(anchorInstruction.toString());
+//     debugPrint((solanaTweetJSON.instructions[0]['accounts'] as List<AccountMeta>).toString());
 //   }
 
-//   Future<void> getTweet(solana.SolanaClient solanaClient, smc.AuthorizationResult result) async {
+//   Future<void> getTweet(SolanaClient solanaClient, AuthorizationResult result) async {
 //     workspace(solanaClient, result);
 //     final response = await solanaClient.signTransactions(
 //       transactions: encodedNftTransactions.map((transaction) {
@@ -55,9 +53,9 @@
 //     {
 //       'name': 'sendTweet',
 //       'accounts': [
-//         AccountMeta(pubKey: solana.Ed25519HDPublicKey('tweet'.codeUnits), isWriteable: true, isSigner: true),
-//         AccountMeta(pubKey: solana.Ed25519HDPublicKey('author'.codeUnits), isWriteable: true, isSigner: true),
-//         AccountMeta(pubKey: solana.Ed25519HDPublicKey('systemProgram'.codeUnits), isWriteable: false, isSigner: false),
+//         AccountMeta(pubKey: Ed25519HDPublicKey('tweet'.codeUnits), isWriteable: true, isSigner: true),
+//         AccountMeta(pubKey: Ed25519HDPublicKey('author'.codeUnits), isWriteable: true, isSigner: true),
+//         AccountMeta(pubKey: Ed25519HDPublicKey('systemProgram'.codeUnits), isWriteable: false, isSigner: false),
 //       ],
 //       'args': [
 //         {'name': 'topic', 'type': 'string'},
