@@ -62,6 +62,8 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
       setState(() {
         _result = result;
       });
+
+      await getSOLBalance();
     } on Exception catch (e) {
       debugPrint(e.toString());
     } finally {
