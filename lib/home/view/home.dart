@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:solana/base58.dart';
 import 'package:solana/encoder.dart';
 import 'package:solana/solana.dart';
+import 'package:solana_app/home/src/api.dart';
 import 'package:solana_mobile_client/solana_mobile_client.dart';
+
+Workspace workspace = Workspace();
 
 class SolanaHomeView extends StatefulWidget {
   const SolanaHomeView({super.key});
@@ -29,9 +32,9 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
     (() async {
       _result = null;
       if (!await LocalAssociationScenario.isAvailable()) {
-        print('No MWA Compatible wallet available; please install a wallet');
+        debugPrint('No MWA Compatible wallet available; please install a wallet');
       } else {
-        print('FOUND MWA WALLET');
+        debugPrint('FOUND MWA WALLET');
         await authorizeUser();
         await getSOLBalance();
       }
@@ -139,9 +142,9 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
     localScenario.startActivityForResult(null).ignore();
     final client = await localScenario.start();
     final reAuth = await client.reauthorize(
-      identityUri: Uri.parse('https://solana.com'),
+      identityUri: Uri.parse('https://solana.apmink.com'),
       iconUri: Uri.parse('favicon.ico'),
-      identityName: 'Solana',
+      identityName: 'Solana App by Apmink',
       authToken: _result!.authToken,
     );
 
@@ -177,9 +180,17 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
 
       await localScenario.close();
 
-      print(
+      debugPrint(
         'TRANSACTION SIGNATURE: https://solscan.io/tx/${base58encode(result.signatures[0])}?cluster=devnet',
       );
+    }
+  }
+
+  Future<void> getTweetsFromWorkspace() async {
+    try {
+      await workspace.getTweet(solanaClient, _result!);
+    } catch (e) {
+      debugPrint('$e');
     }
   }
 
@@ -247,6 +258,10 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
                   onPressed: generateAndSignTransaction,
                   child: const Text('Generate and Sign Transactions'),
                 ),
+                ElevatedButton(
+                  onPressed: getTweetsFromWorkspace,
+                  child: const Text('Get Tweets'),
+                ),
                 // if (_result != null) ElevatedButton(
                 //   onPressed:() => workspace.getTweet(solanaClient, _result!),
                 //   child: const Text('Get Tweet'),
@@ -261,99 +276,96 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
   }
 }
 
-// ElevatedButton(
-//                 onPressed: () async {
-//                   /// step 1
-//                   final localScenario = await LocalAssociationScenario.create();
+// class GetMintDataFormWidget extends StatefulWidget {
+//   const GetMintDataFormWidget({
+//     required this.client,
+//     required this.result,
+//     required this.solanaClient,
+//     super.key,
+//   });
 
-//                   /// step 2
-//                   localScenario.startActivityForResult(null).ignore();
+//   final AuthorizationResult result;
+//   final MobileWalletAdapterClient client;
+//   final SolanaClient solanaClient;
 
-//                   /// step 3
-//                   final client = await localScenario.start();
+//   @override
+//   State<GetMintDataFormWidget> createState() => _GetMintDataFormWidgetState();
+// }
 
-//                   /// step 4
-//                   final result = await client.authorize(
-//                     identityUri: Uri.parse('https://solana.com'),
-//                     iconUri: Uri.parse('favicon.ico'),
-//                     identityName: 'Solana',
-//                     cluster: 'devnet',
-//                   );
+// class _GetMintDataFormWidgetState extends State<GetMintDataFormWidget> {
+//   final int lamportsPerSol = 1000000000;
+//   Uint8List pickedImageFile = Uint8List(0);
 
-//                   /// step 5
-//                   await localScenario.close();
+//   String mintData = '';
 
-//                   setState(() {
-//                     _result = result;
-//                   });
-//                 },
-//                 child: const Text('Authorize'),
-//               ),
-//               ElevatedButton(
-//                 onPressed: () async {
-//                   try {
-//                     await solanaClient.requestAirdrop(
-//                       /// Ed25519HDPublicKey is the main class that represents public
-//                       /// key in the solana dart library
-//                       address: Ed25519HDPublicKey(
-//                         _result!.publicKey.toList(),
-//                       ),
-//                       lamports: 1 * lamportsPerSol,
-//                     );
-//                   } catch (e) {
-//                     print('$e');
-//                   }
-//                 },
-//                 child: const Text('Request Airdrop'),
-//               ),
-//               ElevatedButton(
-//                 onPressed: () async {
-//                   final localScenario = await LocalAssociationScenario.create();
-//                   localScenario.startActivityForResult(null).ignore();
-//                   final client = await localScenario.start();
-//                   final reAuth = await client.reauthorize(
-//                     identityUri: Uri.parse('https://solana.com'),
-//                     iconUri: Uri.parse('favicon.ico'),
-//                     identityName: 'Solana',
-//                     authToken: _result!.authToken,
-//                   );
+//   TextEditingController addressController = TextEditingController();
 
-//                   if (reAuth != null) {
-//                     /// create Memo Program Transaction
-//                     final instruction = MemoInstruction(
-//                       signers: [Ed25519HDPublicKey(_result!.publicKey.toList())],
-//                       memo: 'Example memo',
-//                     );
+//   final _formKey = GlobalKey<FormState>();
 
-//                     final signature = Signature(
-//                       List.filled(64, 0),
-//                       publicKey: Ed25519HDPublicKey(
-//                         _result!.publicKey.toList(),
-//                       ),
-//                     );
+//   @override
+//   void dispose() {
+//     addressController.dispose();
+//     super.dispose();
+//   }
 
-//                     final blockhash = await solanaClient.rpcClient.getLatestBlockhash().then((it) => it.value.blockhash);
+//   void onSubmit() {
+//     if (_formKey.currentState!.validate()) {
+//       getMintData();
+//     }
+//   }
 
-//                     final txn = SignedTx(
-//                       signatures: [signature],
-//                       compiledMessage: Message.only(instruction).compile(
-//                         recentBlockhash: blockhash,
-//                         feePayer: Ed25519HDPublicKey(
-//                           _result!.publicKey.toList(),
-//                         ),
-//                       ),
-//                     );
+//   Future<void> getMintData() async {
+//     try {
+//       // final localScenario = await LocalAssociationScenario.create();
+//       // localScenario.startActivityForResult(null).ignore();
+//       // final client = await localScenario.start();
+//       // final reAuth = await client.reauthorize(
+//       //   identityUri: Uri.parse('https://solana.apmink.com'),
+//       //   iconUri: Uri.parse('favicon.ico'),
+//       //   identityName: 'Solana App by Apmink',
+//       //   authToken: widget.result.authToken,
+//       // );
 
-//                     final result = await client.signAndSendTransactions(
-//                       transactions: [Uint8List.fromList(txn.toByteArray().toList())],
-//                     );
+//       debugPrint(addressController.text);
+//       // if (reAuth != null) {
+//       final result = await widget.solanaClient.rpcClient.(
+//         address: Ed25519HDPublicKey.fromBase58(addressController.text),
+//       );
 
-//                     await localScenario.close();
+//       setState(() {
+//         mintData = result.toString();
+//       });
 
-//                     print(
-//                       'TRANSACTION SIGNATURE: https://solscan.io/tx/${base58encode(result.signatures[0])}?cluster=devnet',
-//                     );
-//                   }
-//                 },
-//                 child: const Text('Generate and Sign Transactions'),
-//               ),
+//       // await localScenario.close();
+
+//       debugPrint(result.toString());
+//       // }
+//     } catch (e) {
+//       debugPrint(e.toString());
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // final screenSize = MediaQuery.of(context).size;
+//     return Center(
+//       child: Form(
+//         key: _formKey,
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             TextField(
+//               decoration: const InputDecoration(hintText: 'Mint Address'),
+//               controller: addressController,
+//             ),
+//             ElevatedButton(
+//               onPressed: onSubmit,
+//               child: const Text('Get Data'),
+//             ),
+//             if (mintData.isNotEmpty) Text(mintData),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
