@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:solana/base58.dart';
 import 'package:solana/dto.dart';
 import 'package:solana/encoder.dart';
 import 'package:solana/solana.dart';
@@ -34,8 +31,6 @@ class Workspace {
       final account = program[0];
 
       final accountData = account.account.data!;
-
-      ;
 
       debugPrint(program[0].toString());
       debugPrint(account.toJson().toString());
