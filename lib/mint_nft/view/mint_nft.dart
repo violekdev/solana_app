@@ -87,7 +87,7 @@ class _MintNFTViewState extends State<MintNFTView> {
 
       await localScenario.close();
 
-      print(
+      debugPrint(
         'TRANSACTION SIGNATURE: https://solscan.io/tx/${base58encode(result.signatures[0])}?cluster=devnet',
       );
     }

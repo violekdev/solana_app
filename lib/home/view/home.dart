@@ -118,7 +118,7 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
       );
       await getSOLBalance();
     } catch (e) {
-      print('$e');
+      debugPrint('$e');
     }
   }
 
@@ -133,7 +133,7 @@ class _SolanaHomeViewState extends State<SolanaHomeView> {
         _accountBalance = balance.value;
       });
     } catch (e) {
-      print('$e');
+      debugPrint('$e');
     }
   }
 
