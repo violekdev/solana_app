@@ -9,6 +9,17 @@ class Tweet {
     required this.content,
   });
 
+  @override
+  factory Tweet.fromJson(Map<String, dynamic> json) => Tweet(
+        publicKey: Ed25519HDPublicKey((json['publicKey'] as String).codeUnits),
+        author: Ed25519HDPublicKey((json['author'] as String).codeUnits),
+        // publicKey: json['publicKey'] as Ed25519HDPublicKey,
+        // author: json['author'] as Ed25519HDPublicKey,
+        timestamp: json['timestamp'] as String,
+        topic: json['topic'] as String,
+        content: json['content'] as String,
+      );
+
   final Ed25519HDPublicKey publicKey;
   final Ed25519HDPublicKey author;
   final String timestamp;
