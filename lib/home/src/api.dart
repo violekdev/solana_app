@@ -1,43 +1,69 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:solana/dto.dart';
 import 'package:solana/encoder.dart';
 import 'package:solana/solana.dart';
 import 'package:solana_app/home/src/model.dart';
+import 'package:solana_app/home/src/model/tweet.dart';
 import 'package:solana_mobile_client/solana_mobile_client.dart';
 
 class Workspace {
-  late dynamic wallet;
-  late dynamic connection;
+  // late dynamic wallet;
+  // late dynamic connection;
   // late dynamic provider;
   late List<ProgramAccount> programList;
   // final clusterUrl = 'https://api.devnet.solana.com';
-  final preflightCommitment = Commitment.processed;
-  final commitment = Commitment.processed;
-  final programPubKey = solanaTweetJSON.metadata['address'] as String;
-  final programId = Ed25519HDPublicKey((solanaTweetJSON.metadata['address'] as String).codeUnits);
+  // final preflightCommitment = Commitment.processed;
+  // final commitment = Commitment.processed;
+  // final programIdPublicKey  = solanaTweetJSON.metadata['address'] as String;
+  final programIdPublicKeyStr = solanaTweetJSON.metadata['address'] as String;
+  final programIdPublicKey = Ed25519HDPublicKey((solanaTweetJSON.metadata['address'] as String).codeUnits);
+  final systemProgramId = Ed25519HDPublicKey.fromBase58(SystemProgram.programId);
 
   Future<void> workspace(SolanaClient solanaClient, AuthorizationResult result) async {
     try {
-      // wallet = result.walletUriBase;
-      // connection = Connection(Cluster.devnet, commitment: commitment);
-
-      // final anchorInstruction = AnchorInstruction.withDiscriminator(programId: programId, discriminator: ByteArray.u64(8), accounts: solanaTweetJSON.instructions[0]['accounts'] as List<AccountMeta>);
-
-      programList = await solanaClient.rpcClient.getProgramAccounts(programPubKey, encoding: Encoding.base64);
+      // final keypair = await Ed25519HDKeyPair.random();
+      // final profilePda = await Ed25519HDPublicKey.findProgramAddress(
+      //   seeds: [
+      //     // Buffer.fromString('solana_twitter'),
+      //     keypair.publicKey.bytes,
+      //   ],
+      //   programId: programIdPublicKey,
+      // );
+      programList = await solanaClient.rpcClient.getProgramAccounts(
+        programIdPublicKeyStr,
+        encoding: Encoding.jsonParsed,
+        commitment: Commitment.confirmed,
+      );
       debugPrint(programList.toString());
 
-      final account = programList[0];
+      final account = programList[9];
       //programList[0] HRLZyJL2roaN1pSKevdeno8DN6xSvAxtKVLDfoowuFYn
       debugPrint(account.pubkey);
+      // debugPrint(account.toJson().toString());
 
-      final accountData = account.account.data! as BinaryAccountData;
-      debugPrint(accountData.toString());
-      debugPrint(accountData.toJson().toString());
-      debugPrint(accountData.data.toString());
+      final result = await solanaClient.rpcClient
+          .getAccountInfo(
+            account.pubkey,
+            commitment: Commitment.confirmed,
+            encoding: Encoding.jsonParsed,
+          )
+          .value;
 
-      final dataArray = accountData.data;
-      final res = String.fromCharCodes(dataArray);
-      debugPrint(res);
+      final bytes = (result!.data! as BinaryAccountData).data;
+      final decodedTweet = TweetModel.fromBorsh(bytes as Uint8List);
+      debugPrint(decodedTweet.author.toString());
+      debugPrint(decodedTweet.content);
+
+      // final accountData = account.account.data! as BinaryAccountData;
+      // final accountData = result!.data! as BinaryAccountData;
+      // debugPrint(accountData.toString());
+      // debugPrint(accountData.toJson().toString());
+      // debugPrint(accountData.data.toString());
+
+      // final dataArray = accountData.data;
+      // debugPrint(dataArray.toString());
     } catch (e) {
       debugPrint(e.toString());
     }
