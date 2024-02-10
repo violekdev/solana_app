@@ -9,7 +9,7 @@ class Workspace {
   late dynamic wallet;
   late dynamic connection;
   // late dynamic provider;
-  late List<ProgramAccount> program;
+  late List<ProgramAccount> programList;
   // final clusterUrl = 'https://api.devnet.solana.com';
   final preflightCommitment = Commitment.processed;
   final commitment = Commitment.processed;
@@ -23,22 +23,21 @@ class Workspace {
 
       // final anchorInstruction = AnchorInstruction.withDiscriminator(programId: programId, discriminator: ByteArray.u64(8), accounts: solanaTweetJSON.instructions[0]['accounts'] as List<AccountMeta>);
 
-      program = await solanaClient.rpcClient.getProgramAccounts(programPubKey, encoding: Encoding.base64);
+      programList = await solanaClient.rpcClient.getProgramAccounts(programPubKey, encoding: Encoding.base64);
+      debugPrint(programList.toString());
 
-      // final provider = AnchorProvider(connection, wallet, {preflightCommitment, commitment});
-      // program = Program(idl, programID, provider.value);
+      final account = programList[0];
+      //programList[0] HRLZyJL2roaN1pSKevdeno8DN6xSvAxtKVLDfoowuFYn
+      debugPrint(account.pubkey);
 
-      final account = program[0];
-
-      final accountData = account.account.data!;
-
-      debugPrint(program[0].toString());
-      debugPrint(account.toJson().toString());
-      debugPrint(account.account.toString());
-      debugPrint(account.account.toJson().toString());
+      final accountData = account.account.data! as BinaryAccountData;
       debugPrint(accountData.toString());
       debugPrint(accountData.toJson().toString());
-      // debugPrint((solanaTweetJSON.instructions[0]['accounts'] as List<AccountMeta>).toString());
+      debugPrint(accountData.data.toString());
+
+      final dataArray = accountData.data;
+      final res = String.fromCharCodes(dataArray);
+      debugPrint(res);
     } catch (e) {
       debugPrint(e.toString());
     }
